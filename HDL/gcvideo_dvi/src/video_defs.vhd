@@ -123,6 +123,7 @@ package video_defs is
     Widescreen        : boolean;
     RGBOutput         : boolean;
     SyncOnGreen       : boolean;
+    DirectAnalogMode  : boolean;
     Volume            : unsigned(7 downto 0);
   end record;
 

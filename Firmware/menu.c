@@ -86,9 +86,21 @@ static void print_value(menu_t *menu, unsigned int itemnum) {
       osd_puts("  RGB");
       break;
 
-    default:
+    case 2:
       osd_puts(" RGsB");
       break;
+
+    case 3:
+      osd_puts(" dYUV");
+      break;
+
+    // case 4:
+    //   osd_puts(" dRGB");
+    //   break;
+
+    // case 5:
+    //   osd_puts("dRGsB");
+    //   break;
     }
     break;
 
@@ -121,7 +133,7 @@ static void update_value(menu_t *menu, unsigned int itemid, updatetype_t upd) {
 
   case VALTYPE_RGBMODE:
     if (upd == UPDATE_INCREMENT) {
-      if (curval < 2)
+      if (curval < /*5*/3)
         curval++;
     } else {
       if (curval > 0)

@@ -118,6 +118,10 @@ architecture Behavioral of Datapipe is
   signal video_rgb      : VideoRGB;
   signal video_out      : VideoRGB;
 
+  signal video_rgb_2    : VideoRGB;
+  signal video_444_ana  : VideoYCbCr;
+  signal video_rgb_ana  : VideoRGB;
+
   signal pixel_clk_en   : boolean;
   signal pixel_clk_en_2x: boolean;
   signal pixel_clk_en_ld: boolean;
@@ -368,11 +372,26 @@ begin
   begin
     if rising_edge(Clock54M) and pixel_clk_en_ld then
       video_out <= video_rgb;
-
       if video_rgb.Blanking then
         video_out.PixelR <= (others => '0');
         video_out.PixelG <= (others => '0');
         video_out.PixelB <= (others => '0');
+      end if;
+
+      if video_settings.DirectAnalogMode then
+        video_rgb_ana <= video_rgb;
+        if video_rgb.Blanking then
+          video_rgb_ana.PixelR <= (others => '0');
+          video_rgb_ana.PixelG <= (others => '0');
+          video_rgb_ana.PixelB <= (others => '0');
+        end if;
+      else
+        video_rgb_ana <= video_rgb;
+        if video_rgb.Blanking then
+          video_rgb_ana.PixelR <= (others => '0');
+          video_rgb_ana.PixelG <= (others => '0');
+          video_rgb_ana.PixelB <= (others => '0');
+        end if;
       end if;
     end if;
   end process;
@@ -389,6 +408,18 @@ begin
     end if;
   end process;
 
+  -- apply analog component signal
+  process (Clock54M, pixel_clk_en_ld)
+  begin
+    if rising_edge(Clock54M) and pixel_clk_en_ld then
+      if video_settings.DirectAnalogMode then
+        video_444_ana <= video_444;
+      else
+        video_444_ana <= video_444_osd;
+      end if;
+    end if;
+  end process;
+
   -- parallel video data
   process(Clock54M, pixel_clk_en_ld)
   begin
@@ -396,7 +427,7 @@ begin
       if video_settings.RGBOutput and ForceYPbPr /= '0' then
         -- RGB mode
         if video_settings.SyncOnGreen then
-          if video_out.CSync then
+          if video_rgb_ana.CSync then
             DAC_SyncN <= '0';
           else
             DAC_SyncN <= '1';
@@ -406,50 +437,64 @@ begin
         end if;
 
         -- video_out already has blanking applied
-        DAC_Red   <= std_logic_vector(video_out.PixelR);
-        DAC_Green <= std_logic_vector(video_out.PixelG);
-        DAC_Blue  <= std_logic_vector(video_out.PixelB);
+        DAC_Red   <= std_logic_vector(video_rgb_ana.PixelR);
+        DAC_Green <= std_logic_vector(video_rgb_ana.PixelG);
+        DAC_Blue  <= std_logic_vector(video_rgb_ana.PixelB);
+
+        -- external Syncs
+        if video_rgb_ana.CSync then
+          CSync_out <= '0';
+        else
+          CSync_out <= '1';
+        end if;
+  
+        if video_rgb_ana.VSync then
+          VSync_out <= '0';
+        else
+          VSync_out <= '1';
+        end if;
+  
+        if video_rgb_ana.HSync then
+          HSync_out <= '0';
+        else
+          HSync_out <= '1';
+        end if;
       else
         -- component mode
-        if video_444_osd.CSync then
+        if video_444_ana.CSync then
           DAC_SyncN <= '0';
         else
           DAC_SyncN <= '1';
         end if;
 
-        if video_444_osd.Blanking then
+        if video_444_ana.Blanking then
           DAC_Red   <= x"80";
           DAC_Green <= x"10";
           DAC_Blue  <= x"80";
         else
-          DAC_Red   <= std_logic_vector(video_444_osd.PixelCr + 128);
-          DAC_Green <= std_logic_vector(video_444_osd.PixelY);
-          DAC_Blue  <= std_logic_vector(video_444_osd.PixelCb + 128);
+          DAC_Red   <= std_logic_vector(video_444_ana.PixelCr + 128);
+          DAC_Green <= std_logic_vector(video_444_ana.PixelY);
+          DAC_Blue  <= std_logic_vector(video_444_ana.PixelCb + 128);
         end if;
-      end if;
-    end if;
-  end process;
 
-  -- external Syncs
-  process(Clock54M, pixel_clk_en_ld)
-  begin
-    if rising_edge(Clock54M) and pixel_clk_en_ld then
-      if video_out.CSync then
-        CSync_out <= '0';
-      else
-        CSync_out <= '1';
-      end if;
-
-      if video_out.VSync then
-        VSync_out <= '0';
-      else
-        VSync_out <= '1';
-      end if;
-
-      if video_out.HSync then
-        HSync_out <= '0';
-      else
-        HSync_out <= '1';
+        -- external Syncs
+        if video_444_ana.CSync then
+          CSync_out <= '0';
+        else
+          CSync_out <= '1';
+        end if;
+  
+        if video_444_ana.VSync then
+          VSync_out <= '0';
+        else
+          VSync_out <= '1';
+        end if;
+  
+        if video_444_ana.HSync then
+          HSync_out <= '0';
+        else
+          HSync_out <= '1';
+        end if;
       end if;
     end if;
   end process;

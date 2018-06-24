@@ -68,12 +68,14 @@ static int get_mute(void)        { return audio_mute;                           
 static int get_analogmode(void) {
   uint32_t val = (video_settings[current_videomode] & VIDEOIF_SET_ANALOG_MASK)
     >> VIDEOIF_SET_ANALOG_SHIFT;
-  if (val == 3)
-    return 2;
-  else
-    return val;
+  switch(val) { // map settings values to menu values
+    case 3: return 2;
+    case 4: return 3;
+    //case 5: return 4;
+    //case 7: return 5;
+    default: return val;
+  }
 }
-
 
 static void set_all_modes(uint32_t flag, bool state) {
   for (unsigned int i = 0; i < VIDMODE_COUNT; i++) {
@@ -130,8 +132,13 @@ static bool set_mute(int value) {
 }
 
 static bool set_analogmode(int value) {
-  if (value == 2)
-    value = 3;
+  switch(value) { // map menu values to settings values
+    case 2: value = 3; break;
+    case 3: value = 4; break;
+    //case 4: value = 5; break;
+    //case 5: value = 7; break;
+    default: break;
+  }
   set_all_modes(VIDEOIF_SET_ANALOG_MASK, false);
   set_all_modes(value << VIDEOIF_SET_ANALOG_SHIFT, true);
   VIDEOIF->settings = video_settings[current_videomode];
