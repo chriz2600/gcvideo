@@ -1,6 +1,7 @@
 firmware:
   stage: build
   before_script:
+    - source /opt/Xilinx/14.7/ISE_DS/settings64.sh
     - export PATH=$PATH:/root/zpugcc/toolchain/install/bin
   script: 
     - HDL/gcvideo_dvi/build-all.sh
