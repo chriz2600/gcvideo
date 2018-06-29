@@ -1,5 +1,7 @@
 firmware:
   stage: build
+  before_script:
+    - export PATH=$PATH:/root/zpugcc/toolchain/install/bin
   script: 
     - HDL/gcvideo_dvi/build-all.sh
   artifacts:
