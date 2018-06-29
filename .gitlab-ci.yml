@@ -1,0 +1,9 @@
+firmware:
+  stage: build
+  script: 
+    - HDL/gcvideo_dvi/build-all.sh
+  artifacts:
+    paths:
+    - HDL/gcvideo_dvi/binaries/*.zip
+  tags:
+    - gcvideo
