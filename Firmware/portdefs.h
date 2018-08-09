@@ -91,6 +91,7 @@ typedef struct {
 #define VIDEOIF_SET_ANALOGMODE       (1<<17)
 #define VIDEOIF_SET_ANALOGSOG        (1<<18)
 #define VIDEOIF_SET_ANALOGDIRECT     (1<<19)
+#define VIDEOIF_SET_CHROMAUPSAMPLING (1<<20)
 
 #define VIDEOIF_SET_ANALOG_MASK      (7 << 17)
 #define VIDEOIF_SET_ANALOG_SHIFT     17

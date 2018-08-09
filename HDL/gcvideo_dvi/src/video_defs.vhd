@@ -124,6 +124,7 @@ package video_defs is
     RGBOutput         : boolean;
     SyncOnGreen       : boolean;
     DirectAnalogMode  : boolean;
+    EnableChromaRpt   : boolean;
     Volume            : unsigned(7 downto 0);
   end record;
 

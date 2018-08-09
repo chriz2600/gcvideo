@@ -64,6 +64,7 @@ static int get_169(void)         { return video_settings[current_videomode] & VI
 static int get_switchdelay(void) { return mode_switch_delay;                                           }
 static int get_volume(void)      { return audio_volume;                                                }
 static int get_mute(void)        { return audio_mute;                                                  }
+static int get_upsampling(void)  { return video_settings[current_videomode] & VIDEOIF_SET_CHROMAUPSAMPLING; }
 
 static int get_analogmode(void) {
   uint32_t val = (video_settings[current_videomode] & VIDEOIF_SET_ANALOG_MASK)
@@ -131,6 +132,12 @@ static bool set_mute(int value) {
   return false;
 }
 
+static bool set_upsampling(int value) {
+  set_all_modes(VIDEOIF_SET_CHROMAUPSAMPLING, value);
+  VIDEOIF->settings = video_settings[current_videomode];
+  return false;
+}
+
 static bool set_analogmode(int value) {
   switch(value) { // map menu values to settings values
     case 2: value = 3; break;
@@ -152,6 +159,7 @@ static valueitem_t value_169         = { get_169,         set_169,         VALTY
 static valueitem_t value_switchdelay = { get_switchdelay, set_switchdelay, VALTYPE_BYTE };
 static valueitem_t value_volume      = { get_volume,      set_volume,      VALTYPE_BYTE };
 static valueitem_t value_mute        = { get_mute,        set_mute,        VALTYPE_BOOL };
+static valueitem_t value_upsampling  = { get_upsampling,  set_upsampling,  VALTYPE_UPSAMPLING };
 
 static valueitem_t __attribute__((unused)) value_analogmode =
   { get_analogmode, set_analogmode, VALTYPE_RGBMODE };
@@ -170,7 +178,8 @@ static menuitem_t otherset_items[] = {
   { "Volume",            &value_volume,      5, 0 }, // 5
   { "Mute",              &value_mute,        6, 0 }, // 6
   { "Analog output",     &value_analogmode,  7, 0 }, // 7
-  { "Exit",              NULL,               9, 0 }, // 8
+  { "Chroma upsampling", &value_upsampling,  8, 0 }, // 8
+  { "Exit",              NULL,               9, 0 }, // 9
 };
 
 static menu_t otherset_menu = {
@@ -189,11 +198,12 @@ static menuitem_t otherset_items[] = {
   { "Mode switch delay", &value_switchdelay, 4, 0 }, // 4
   { "Volume",            &value_volume,      5, 0 }, // 5
   { "Mute",              &value_mute,        6, 0 }, // 6
-  { "Exit",              NULL,               8, 0 }, // 7
+  { "Chroma upsampling", &value_upsampling,  7, 0 }, // 7
+  { "Exit",              NULL,               9, 0 }, // 8
 };
 
 static menu_t otherset_menu = {
-  9, 9,
+  10, 10,
   26, 11,
   otherset_draw,
   sizeof(otherset_items) / sizeof(*otherset_items),

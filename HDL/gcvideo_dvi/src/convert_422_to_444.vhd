@@ -42,6 +42,9 @@ entity convert_422_to_444 is
     PixelClock      : in  std_logic;
     PixelClockEnable: in  boolean;
 
+    -- enable chroma repetition upsampling
+    EnableChromaRpt : in  boolean;
+
     -- input video
     VideoIn         : in  VideoY422;
 
@@ -91,10 +94,16 @@ begin
         prev_cr <= current_cr;
         prev_cb <= current_cb;
 
-        -- output interpolated chroma info for the delayed Y value
-        VideoOut.PixelCb <= average(prev_cb, current_cb);
-        VideoOut.PixelCr <= average(prev_cr, current_cr);
-      else
+          if EnableChromaRpt then
+            -- output repeated chroma info for the delayed Y value
+            VideoOut.PixelCb <= signed(prev_cr xor x"80");
+            VideoOut.PixelCr <= signed(prev_cb xor x"80");
+          else
+            -- output interpolated chroma info for the delayed Y value
+            VideoOut.PixelCb <= average(prev_cb, current_cb);
+            VideoOut.PixelCr <= average(prev_cr, current_cr);
+          end if;
+        else
         -- pixel with the remainder of the current chroma information
         if not VideoIn.Blanking then
           current_cr <= VideoIn.PixelCbCr;

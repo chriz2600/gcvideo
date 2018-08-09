@@ -295,6 +295,7 @@ begin
     PORT MAP (
       PixelClock       => Clock54M,
       PixelClockEnable => pixel_clk_en_ld,
+      EnableChromaRpt  => video_settings.EnableChromaRpt,
       VideoIn          => video_ld,
       VideoOut         => video_444
     );

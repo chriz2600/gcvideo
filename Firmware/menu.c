@@ -74,6 +74,13 @@ static void print_value(menu_t *menu, unsigned int itemnum) {
       osd_puts(" Odd");
     break;
 
+  case VALTYPE_UPSAMPLING:
+    if (value)
+      osd_puts("Intp");
+    else
+      osd_puts(" Rpt");
+    break;
+
   case VALTYPE_RGBMODE:
     osd_gotoxy(menu->xpos + menu->xsize - 7,
                menu->ypos + menu->items[itemnum].line + 1);
@@ -128,6 +135,10 @@ static void update_value(menu_t *menu, unsigned int itemid, updatetype_t upd) {
   case VALTYPE_BOOL:
   case VALTYPE_EVENODD:
     /* bool always toggles */
+    curval = !curval;
+    break;
+
+  case VALTYPE_UPSAMPLING:
     curval = !curval;
     break;
 
@@ -330,6 +341,7 @@ int menu_exec(menu_t *menu, unsigned int initial_item) {
         switch (vi->type) {
         case VALTYPE_BOOL:
         case VALTYPE_EVENODD:
+        case VALTYPE_UPSAMPLING:
           update_value(menu, cur_item, UPDATE_INCREMENT); // bool always toggles
           break;
 

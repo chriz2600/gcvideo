@@ -81,6 +81,9 @@ package component_defs is
       PixelClock      : in  std_logic;
       PixelClockEnable: in  boolean;
 
+      -- enable chroma repetition upsampling
+      EnableChromaRpt : in  boolean;
+
       -- input video
       VideoIn         : in  VideoY422;
 

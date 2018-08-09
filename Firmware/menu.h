@@ -41,6 +41,7 @@ typedef enum {
   VALTYPE_BYTE,
   VALTYPE_SBYTE_99,  // -99 to 99
   VALTYPE_SBYTE_127, // -128 to 127
+  VALTYPE_UPSAMPLING,
 } valuetype_t;
 
 typedef struct {
