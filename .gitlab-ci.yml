@@ -1,4 +1,6 @@
 firmware:
+  image:
+    name: docker.i74.de:5000/gcvideo-build-system
   stage: build
   before_script:
     - source /opt/Xilinx/14.7/ISE_DS/settings64.sh
@@ -9,4 +11,4 @@ firmware:
     paths:
     - HDL/gcvideo_dvi/binaries/*.zip
   tags:
-    - gcvideo
+    - xilinx-ise
