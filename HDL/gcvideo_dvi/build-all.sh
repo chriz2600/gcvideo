@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+cd $(dirname $0)
 
 function build () {
     local TARGET="$1"
