@@ -56,6 +56,7 @@ else ifeq ($(MODULE),flasher)
 	src/crc32.vhd                      \
 	src/Blanking_Regenerator_Fixed.vhd \
 	src/ZPU_SPICAP_CRC.vhd             \
+	src/ZPUSignalDiag.vhd              \
 	src/ZPULineCapture.vhd
 
 else
@@ -105,9 +106,10 @@ SRC_SHURIKEN := src/toplevel_shuriken.vhd
 SRC_DUAL     := src/toplevel_dual.vhd
 BMM          := src/zpu_bootram.bmm
 PART         := xc3s200a-vq100-4
+COST_TABLE   ?= 2
 
-MAP_OPTS := -timing -logic_opt on -ol high -xe n -t 1 -register_duplication on -cm balanced -detail -ir off -ignore_keep_hierarchy -pr b -bp -power off
-PAR_OPTS := -ol high -xe n -t 1
+MAP_OPTS := -timing -logic_opt on -ol high -xe n -t $(COST_TABLE) -register_duplication on -cm balanced -detail -ir off -ignore_keep_hierarchy -pr b -bp -power off
+PAR_OPTS := -ol high -xe n -t $(COST_TABLE)
 OBJCOPY  := zpu-elf-objcopy
 
 SRC = $(SRC_COMMON) $(SRC_MODULE)
@@ -118,36 +120,42 @@ ifeq ($(TARGET),p2xh-gc)
   BOARD    := p2xh
   CONSOLE  := GC
   FIRMWARE := gc-dvi
+  GENERICS := SwapGreen=\"YES\" SwapBlue=\"YES\"
 else ifeq ($(TARGET),p2xh-wii)
   SRC      += $(SRC_P2XH)
   TOPLEVEL := toplevel_p2xh
   BOARD    := p2xh
   CONSOLE  := WII
   FIRMWARE := wii-dvi
+  GENERICS := SwapGreen=\"YES\" SwapBlue=\"YES\"
 else ifeq ($(TARGET),shuriken-gc)
   SRC      += $(SRC_SHURIKEN)
   TOPLEVEL := toplevel_shuriken
   BOARD    := shuriken
   CONSOLE  := GC
   FIRMWARE := gc-dvi
+  GENERICS := SwapRed=\"YES\" SwapGreen=\"YES\" SwapBlue=\"YES\"
 else ifeq ($(TARGET),shuriken-wii)
   SRC      += $(SRC_SHURIKEN)
   TOPLEVEL := toplevel_shuriken
   BOARD    := shuriken
   CONSOLE  := WII
   FIRMWARE := wii-dvi
+  GENERICS := SwapRed=\"YES\" SwapGreen=\"YES\" SwapBlue=\"YES\"
 else ifeq ($(TARGET),shuriken-v3-gc)
   SRC      += $(SRC_SHURIKEN)
   TOPLEVEL := toplevel_shuriken
   BOARD    := shuriken-v3
   CONSOLE  := GC
   FIRMWARE := gc-dvi
+  GENERICS := SwapRed=\"YES\" SwapGreen=\"YES\" SwapBlue=\"YES\"
 else ifeq ($(TARGET),shuriken-v3-wii)
   SRC      += $(SRC_SHURIKEN)
   TOPLEVEL := toplevel_shuriken
   BOARD    := shuriken-v3
   CONSOLE  := WII
   FIRMWARE := wii-dvi
+  GENERICS := SwapRed=\"YES\" SwapGreen=\"YES\" SwapBlue=\"YES\"
 else ifeq ($(TARGET),dual-gc)
   SRC      += $(SRC_DUAL)
   TOPLEVEL := toplevel_dual
@@ -155,12 +163,21 @@ else ifeq ($(TARGET),dual-gc)
   CONSOLE  := GC
   FIRMWARE := gc-dual
   FWFLAGS  := DISABLE_CABLEDETECT
+  GENERICS := SwapRed=\"YES\" SwapGreen=\"YES\" SwapBlue=\"YES\"
 else ifeq ($(TARGET),dual-wii)
   SRC      += $(SRC_DUAL)
   TOPLEVEL := toplevel_dual
   BOARD    := dualwii
   CONSOLE  := WII
   FIRMWARE := wii-dual
+  GENERICS := SwapRed=\"YES\" SwapGreen=\"YES\" SwapBlue=\"YES\"
+else ifeq ($(TARGET),gcplug)
+  SRC      += $(SRC_SHURIKEN)
+  TOPLEVEL := toplevel_shuriken
+  BOARD    := gcplug
+  CONSOLE  := GC
+  FIRMWARE := gc-dvi
+  GENERICS := SwapRed=\"YES\" SwapGreen=\"YES\" SwapBlue=\"YES\"
 else
 dummy:
 	@echo "TARGET variable not specified"
@@ -174,6 +191,7 @@ dummy:
 	@echo "  - shuriken-v3-wii"
 	@echo "  - dual-gc"
 	@echo "  - dual-wii"
+	@echo "  - gcplug"
 	@false
 endif
 
@@ -206,7 +224,7 @@ all: $(BUILDDIR)/$(TOPLEVEL).bin
 
 build/%.bin build/%.bit: build/%.ncd
 	$(E) "---- BITGEN   $<"
-	$(Q)cd $(dir $<) ; bitgen -f ../../scripts/bitgenconfig.ut -g "UserID:$(HWID)" $(TOPLEVEL).ncd
+	$(Q)cd $(dir $<) ; bitgen -f ../../scripts/bitgenconfig-$(CONSOLE).ut -g "UserID:$(HWID)" $(TOPLEVEL).ncd
 
 build/%.ncd: build/%.pcf
 	$(E) "---- PAR      $<"
@@ -232,7 +250,7 @@ build/%.xst: build/%.prj scripts/template.xst $(BUILDDIR)/$(FIRMWARE_MIF)
 	$(Q)echo -ifn $(TOPLEVEL).prj >> $@
 	$(Q)echo -ofn $(TOPLEVEL)     >> $@
 	$(Q)echo -top $(TOPLEVEL)     >> $@
-	$(Q)echo -generics {TargetConsole=\"$(CONSOLE)\" Firmware=\"$(FIRMWARE_MIF)\" Module=\"$(MODULE)\"} >> $@
+	$(Q)echo -generics {TargetConsole=\"$(CONSOLE)\" Firmware=\"$(FIRMWARE_MIF)\" Module=\"$(MODULE)\" $(GENERICS)} >> $@
 
 $(UCF): src/constraints-common.ucf src/constraints-$(BOARD).ucf src/constraints-$(CONSOLE_LC).ucf $(CONSTRAINTS_MODULE)
 	$(E) "---- GENUCF   $<"

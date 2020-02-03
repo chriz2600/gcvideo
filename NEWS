@@ -1,3 +1,17 @@
+2020-02-02: GCVideo DVI version 3.0d
+- add GCPlug hardware configuration
+- add diagnostics mode in flasher
+- fix handling of uncompressed chunks in flasher
+- add workaround to never use uncompressed chunks in buildupdate.pl
+
+2020-01-25: GCVideo DVI version 3.0c
+- fix stuck display disable on mode change
+- attempt to fix a rare audio glitch
+
+2020-01-19: GCVideo DVI version 3.0b
+- fix inverted colors on WiiDual
+- fix flasher->main reboot failure on some Wiis
+
 2020-01-13: GCVideo DVI version 3.0a
 - fix flash corruption when saving settings
 

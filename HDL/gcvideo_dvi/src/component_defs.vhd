@@ -325,6 +325,9 @@ package component_defs is
       PadData         : in  std_logic;
       IRReceiver      : in  std_logic;
       IRButton        : in  std_logic;
+      I2S_BClock      : in  std_logic;
+      I2S_LRClock     : in  std_logic;
+      I2S_Data        : in  std_logic;
       SPI_MOSI        : out std_logic;
       SPI_MISO        : in  std_logic;
       SPI_SCK         : out std_logic;
@@ -378,10 +381,11 @@ package component_defs is
 
   component LED_Heartbeat is
     port (
-      Clock         : in  std_logic;
-      VSync         : in  std_logic;
-      HeartbeatClock: out std_logic;
-      HeartbeatVSync: out std_logic
+      Clock          : in  std_logic;
+      VSync          : in  std_logic;
+      HeartbeatClock : out std_logic;
+      HeartbeatVSync : out std_logic;
+      HeartbeatVSync2: out std_logic
     );
   end component;
 
